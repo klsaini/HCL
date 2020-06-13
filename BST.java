@@ -1,3 +1,12 @@
+/*
+Design a  ordered binary tree and then write an algorithm to print the traversal of leaves from right to left. That is your method traverseLeaves() should return leaves in the order Right to left. For example :
+Return of traverseLeaves() will contain   leaves in the leaf in the below order 
+
+ 
+
+          13 ->  7  ->4   ->1 
+*/
+
 import java.util.Stack;
 
 class Node1{
