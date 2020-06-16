@@ -1,0 +1,197 @@
+public class SFTPClient {
+ 
+      private String host = "ftp.example.com"
+      private int port = 22;
+      private Session session = null;
+ 
+      public SFTPClient() {
+
+        JSch jsch = new JSch();
+          jsch.addIdentity("private-key-path);
+          session = jsch.getSession(server);
+          session = jsch.getSession("username", host, port);
+          session.setPassword("the-password");
+          session.setConfig("StrictHostKeyChecking", "no");
+          session.connect();
+      }
+      public File download(String source, String destination) throws JSchException, SftpException {
+      Channel channel = session.openChannel("sftp");
+      channel.connect();
+      ChannelSftp sftpChannel = (ChannelSftp) channel;
+      File f=sftpChannel.get(source, destination);
+
+      sftpChannel.exit();
+      return file
+  }
+    public void disconnect() {
+      if (session != null) {
+          session.disconnect();
+      }
+  }
+  }
+
+ 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+public class TestProducerConsumer
+{
+    public static void main(String args[])
+    {
+        try
+        {
+                SFTPClient ftp=new SFTPClient();
+               FileController fileController=new FileController();
+            ExecutorService threadPool = Executors.newFixedThreadPool(8);
+            Future producerStatus = threadPool.submit(new Producer(ftp,String source, String destination));
+            threadPool.execute(new Consumer(fileController));
+            threadPool.execute(new Consumer(fileController));
+            threadPool.execute(new Consumer(fileController));
+            threadPool.execute(new Consumer(fileController));
+            threadPool.execute(new Consumer(fileController));
+            threadPool.execute(new Consumer(fileController));
+            threadPool.execute(new Consumer(fileController));
+            producerStatus.get();
+            threadPool.shutdown();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+}
+
+ 
+public class Producer implements Runnable
+{
+    private  SFTPClient ftp;
+    private FileController fileController
+     String source; 
+     String destination;
+    public Producer(SFTPClient ftp,String source, String destination,FileController fileController)
+    {
+        this.ftp = ftp;
+         this.source=source; 
+     this.destination=destgination;
+     this.fileController=fileController;
+    }
+ 
+ 
+    @Override
+    public void run()
+    {
+        try
+        {
+                File file=ftp.download(source ,destination)
+                fileController.putFile(file);
+            }
+        }
+        catch (InterruptedException ex)
+        {
+            ex.printStackTrace();
+        }
+ 
+    }
+}
+
+
+
+ 
+public class Consumer implements Runnable
+{
+ 
+    private FileController fileController;
+ 
+ 
+    public Consumer(FileController fileController)
+    {
+        this.fileController = fileController;
+    }
+ 
+ 
+    @Override
+    public void run()
+    {
+        try
+        {
+            File data = fileController.getFile();
+ 
+            while (broker.continueProducing || data != null)
+            {
+                try {
+                       br = new BufferedReader(new FileReader(csvFile));
+                       while ((line = br.readLine()) != null) {
+                       String[] data= line.split(cvsSplitBy);
+                       MysqlCon mySql=new MySqlCon();
+                       mySql.connection(data[0],data[1],data[2],data[3]);
+                   }
+
+                 } catch (FileNotFoundException e) {
+                           e.printStackTrace();
+                 } catch (IOException e) {
+                         e.printStackTrace();
+                  } finally {
+                       if (br != null) {
+                           try {
+                              br.close();
+                          } catch (IOException e) {
+                                 e.printStackTrace();
+                         }
+                }
+        }
+                data = broker.getFile();
+            }
+        }
+        catch (InterruptedException ex)
+        {
+            ex.printStackTrace();
+        }
+    }
+ 
+}
+
+import java.sql.*;  
+class MysqlCon{  
+public void connection(String data1,String data2,String data3,String data4){  
+try{  
+      String myDriver = "org.gjt.mm.mysql.Driver";
+      String myUrl = "jdbc:mysql://localhost/test";
+      Class.forName(myDriver);
+      Connection conn = DriverManager.getConnection(myUrl, "root", "");
+      String query = " insert into users (Data1,Data2,Data3,Data4)"
+        + " values (?, ?, ?, ?, ?)";
+      PreparedStatement preparedStmt = conn.prepareStatement(query);
+      preparedStmt.setString(1, data1);
+      preparedStmt.setString(2, data2);
+      preparedStmt.setString(3, data3);
+      preparedStmt.setString(4, data4);
+      preparedStmt.execute();
+      conn.close(); 
+}catch(Exception e){  e.printStackTrace();}  
+}  
+}  
+
+
+
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.TimeUnit;
+ 
+public class FileController
+{
+    public ArrayBlockingQueue<File> queue = new ArrayBlockingQueue<Integer>(1000);
+    public Boolean continueProducing = Boolean.TRUE;
+ 
+    public void putFile(File data) throws InterruptedException
+    {
+        this.queue.put(data);
+    }
+ 
+    public Integer getFile() throws InterruptedException
+    {
+        return this.queue.poll();
+    }
+}
+
+
+
+
